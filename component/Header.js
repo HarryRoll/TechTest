@@ -2,15 +2,18 @@ import { Text, View, StyleSheet, TouchableOpacity } from "react-native";
 
 import React from 'react'
 
-export default function Header() {
+export default function Header(props) {
   return (
     <View style={styles.header} >
         <Text style={styles.textHeader}>
-            Juna Restaurant
+           {props.logo}
         </Text>
-        <TouchableOpacity style={styles.cart}>
+        <TouchableOpacity 
+            style={styles.cart}
+            onPress={()=>console.log("test")}
+            >
             <Text>
-                Cart
+                {props.cart}
             </Text>
         </TouchableOpacity>
     </View>

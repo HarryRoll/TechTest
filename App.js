@@ -1,12 +1,17 @@
 import { Button, StyleSheet, Text, View, Alert, StatusBar } from 'react-native';
 
 import Header from './component/Header';
+import Menu from './component/Menu';
 
 export default function App() {
   return (
     <View style={styles.container}>
       <StatusBar style="auto" backgroundColor="#61dafb" />
-      <Header/>
+      <Header
+        logo="Juna Restaurant"
+        cart="cart"
+      />
+      <Menu/>
       <Text>Hello</Text>
       <Text style={styles.test}>hello3df</Text>
       <Button

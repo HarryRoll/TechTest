@@ -24,6 +24,7 @@ function Menu() {
     const [total,setTotal] = useState()
     const [checkOutData,setCheckOutData] = useState()
     const [foodArr,setFoodArr]= useState()
+    const [drinkArr,setDrinkArr] = useState()
     const [order,setOrder] = useState([{
         img : '',
         menuName : '', 
@@ -49,6 +50,7 @@ function Menu() {
         }
         console.log(order)
     }
+    
     const onPress = (MenuProps) => {
         setModalOrderVisible(true);
         setPropsMenu(MenuProps)
@@ -70,12 +72,13 @@ function Menu() {
         setModalCartVisible(true)
  //       order.map(e => console.log(e.Price))
     }
-    const checkOut = () => {
-        setCheckOutData({
-            order : order,
-            table : table,
+    const checkOut = async () => {
+        payload = {
+            orderReport : order,
+            tableNumber : table,
             total : total
-        })
+        }
+        await menuApi.createReportApi(payload).then(()=>{
         setOrder([{
             img : '',
             menuName : '', 
@@ -86,6 +89,7 @@ function Menu() {
         setTable('')
         setModalCartVisible(false)
         Alert.alert('Check Out Successfully')
+    })
     }
 
     useEffect(()=>{
@@ -101,27 +105,10 @@ function Menu() {
         menuApi.foodMenu().then(data=>{
             setFoodArr(data)
         })
+        menuApi.drinkMenu().then(data=>{
+            setDrinkArr(data)
+        })
     },[])
-
-
-    const drinkArr = [{
-        img : 1,
-        drinkName : 'Teh manis',
-        price : 15001
-    },{
-        img : 2,
-        drinkName : 'Teh Tidak Manis',
-        price : 15002
-    },{
-        img : 3,
-        drinkName : 'Teh manis Dingin',
-        price : 15003
-    },{
-        img : 4,
-        drinkName : 'Teh manis panas',
-        price : 15004
-    },]
-
 
   return (
    <View style={styles.container}>
@@ -252,7 +239,7 @@ function Menu() {
                                 <View style={styles.menu}>
                                 <Image source={require('./img/2.jpg')} style={{height:'55%', width:'100%', resizeMode:'cover'}}/>
                                     <Text>
-                                        {item.foodName}   
+                                        {item.foodname}   
                                     </Text>
                                     <Text>
                                         Rp. {item.price}   
@@ -281,7 +268,7 @@ function Menu() {
                                 <View style={styles.menu}>
                                     <Image source={require(`./img/1.jpg`)} style={{height:'55%', width:'100%', resizeMode:'cover'}}/>                                    
                                     <Text>
-                                        {item.drinkName}    
+                                        {item.drinkname}    
                                     </Text>
                                     <Text>
                                         Rp. {item.price}   

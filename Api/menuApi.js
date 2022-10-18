@@ -20,5 +20,15 @@ const drinkMenu = async() => {
     }
 }
 
+const createReportApi = async(payload)=>{
+    try{
+        const URL = 'http://192.168.0.14:8080/report'
+        const result = await axios.post(URL,payload)
+        return result
+    }
+    catch(error){
+        return await error.message
+    }
+}
 
-export default {foodMenu, drinkMenu}
+export default {foodMenu, drinkMenu, createReportApi}

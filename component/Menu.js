@@ -1,11 +1,22 @@
 import { Text, View, StyleSheet, TouchableOpacity, ScrollView, FlatList, Image, Modal, TextInput, Alert, Button} from "react-native";
-import React,{useState} from "react";
+import React,{useState,useEffect} from "react";
+import Header from "./Header";
+
 function Menu() {
 
     const [modalOrderVisible, setModalOrderVisible] = useState(false)
+    const [modalCartVisible, setModalCartVisible] = useState(false)
     const [propsMenu,setPropsMenu] = useState({})
     const [qty,setQty] = useState(0)
-    const [order,setOrder] = useState([])
+    const [table,setTable] = useState('')
+    const [order,setOrder] = useState([{
+        img : '',
+        menuName : '', 
+        Price : 0,
+        qty : 0,
+        Total : 0
+    },])
+    const [total,setTotal] = useState()
 
     const inputCart = (value) => {
         if(value.qty===0){Alert.alert("cant zero order")}
@@ -34,6 +45,21 @@ function Menu() {
         else{
         setQty(Number(qty)-1)}
     }
+
+    const cart = () => {
+        setModalCartVisible(true)
+ //       order.map(e => console.log(e.Price))
+    }
+
+    useEffect(()=>{
+        let hasil = {...order.map(e=>e.Total)}
+        let tot = 0
+            for(let i = 0; i <order.length; i++){
+            tot += hasil[i];
+            }
+            setTotal(tot)
+        console.log(tot)
+    },[modalCartVisible])
     const foodArr = [{
         img : 1,
         foodName : 'nasi Goreng',
@@ -72,8 +98,73 @@ function Menu() {
 
   return (
    <View style={styles.container}>
-    
-    
+
+    <Modal
+    visible={modalCartVisible}
+    transparent={true}
+    >
+    <View style={{justifyContent:'center', flex:1, padding:15}}>   
+        <View style={{height:'70%', backgroundColor:'#fff',  elevation : 10, borderRadius:10}}>
+            <View style={{height:40, backgroundColor:'#61dafb', justifyContent:'center', alignItems:"center"}}>
+                <Text style={{color:'white'}}>
+                    Cart
+                </Text>
+            </View>
+           
+
+
+            <FlatList
+                        data = {order}
+                        renderItem={({item})=>(    
+                        <ScrollView>               
+                                <View style={{margin:5, padding:5, backgroundColor:'grey', flexDirection:'row'}}>                                  
+                                    <View style={{flexDirection:'column', flex:1, backgroundColor:'red',marginRight : 10}}>
+                                        <Text style={{marginRight : 10}}>
+                                            {item.img}
+                                        </Text>
+                                        <Text style={{}}>     
+                                            {item.menuName} 
+                                        </Text>
+                                    </View>
+                                    <View style={{flex:1, flexDirection:'column', backgroundColor:'red',marginRight : 10}}>
+                                        <Text>Harga</Text>
+                                        <Text style={{}}>
+                                            Rp. {item.Price} 
+                                        </Text>
+                                    </View>
+                                    <View style={{flex:1, backgroundColor:'red',marginRight : 10}}>
+                                        <TextInput
+                                        style={{height: 40}}
+                                        onChangeText={(e)=>item.qty=e}
+                                        keyboardType='number-pad' 
+                                        defaultValue={item.qty.toString()}
+                                        />
+                                        <Text style={{}}>
+                                            Rp. {item.Price*item.qty}    
+                                        </Text>
+                                    </View>    
+                                </View>       
+                        </ScrollView>                          
+                      )}/>
+
+            <TextInput
+                style={{height: 40}}
+                onChangeText={(e)=>setTable(e)}
+                keyboardType='number-pad'
+                placeholder="Table Number " 
+                defaultValue={table}
+                />
+            <Text>Total Rp. {total}</Text>
+            <TouchableOpacity>
+            <Text style={{backgroundColor:'green',color:'white',padding:10,width:'20%',borderRadius:5}}>OK</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={()=>setModalCartVisible(false)}>
+                <Text style={{backgroundColor:'red',color:'white',padding:10,width:'20%',borderRadius:5}}>Cancel</Text>
+            </TouchableOpacity>
+        </View>
+    </View>
+    </Modal> 
+
     <Modal
     visible={modalOrderVisible}
     transparent={true}
@@ -95,6 +186,7 @@ function Menu() {
                 <TextInput
                     style={{height: 40}}
                     onChangeText={newText => setQty(newText)}
+                    keyboardType='number-pad'
                     defaultValue={qty.toString()}
                 />
             <TouchableOpacity onPress={()=>setQty(Number(qty)+1)}>
@@ -138,7 +230,7 @@ function Menu() {
                                         choosePR : item.price
                                         })}>
                                 <View style={styles.menu}>
-                                <Image source={require('./img/1.jpg')} style={{height:'55%', width:'100%', resizeMode:'cover'}}/>
+                                <Image source={require('./img/2.jpg')} style={{height:'55%', width:'100%', resizeMode:'cover'}}/>
                                     <Text>
                                         {item.foodName}   
                                     </Text>
@@ -180,6 +272,11 @@ function Menu() {
                       )}/>  
                 </View>
         </View>
+        <Button
+    onPress={()=>cart()}
+    title="Cart"
+    />
+    
    </View>
   )
 }
@@ -208,7 +305,7 @@ const styles = StyleSheet.create({
         overflow : 'hidden',
     },
     menu : {
-        height : 145,
+        height : '90%',
         width : 120,
         backgroundColor : '#fff',
         margin : 5,

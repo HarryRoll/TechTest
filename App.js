@@ -13,7 +13,6 @@ export default function App() {
         cart="cart"
       />
       <Menu/>
-      <Footer/>
     </View>
   );
 }

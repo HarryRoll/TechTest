@@ -1,6 +1,18 @@
-import { Text, View, StyleSheet, TouchableOpacity, ScrollView, FlatList, Image, Modal, TextInput, Alert, Button} from "react-native";
 import React,{useState,useEffect} from "react";
 import Header from "./Header";
+import axios from "axios";
+import menuApi from "../Api/menuApi";
+import { Text,
+        View,
+        StyleSheet, 
+        TouchableOpacity, 
+        ScrollView, 
+        FlatList, 
+        Image, 
+        Modal, 
+        TextInput, 
+        Alert, 
+        Button} from "react-native";
 
 function Menu() {
 
@@ -9,6 +21,9 @@ function Menu() {
     const [propsMenu,setPropsMenu] = useState({})
     const [qty,setQty] = useState(0)
     const [table,setTable] = useState('')
+    const [total,setTotal] = useState()
+    const [checkOutData,setCheckOutData] = useState()
+    const [foodArr,setFoodArr]= useState()
     const [order,setOrder] = useState([{
         img : '',
         menuName : '', 
@@ -16,16 +31,21 @@ function Menu() {
         qty : 0,
         Total : 0
     },])
-    const [total,setTotal] = useState()
 
     const inputCart = (value) => {
         if(value.qty===0){Alert.alert("cant zero order")}
         else
         {
-            order.push(value)
-            setModalOrderVisible(false)
-            setQty(0)
-            Alert.alert("Your order has been added to the cart")
+            if(order[0].img===''){
+                setOrder([value])
+                setModalOrderVisible(false)
+                setQty(0)
+                Alert.alert("Your order has been added to the cart")
+            }else{
+                order.push(value)
+                setModalOrderVisible(false)
+                setQty(0)
+                Alert.alert("Your order has been added to the cart")}
         }
         console.log(order)
     }
@@ -50,6 +70,23 @@ function Menu() {
         setModalCartVisible(true)
  //       order.map(e => console.log(e.Price))
     }
+    const checkOut = () => {
+        setCheckOutData({
+            order : order,
+            table : table,
+            total : total
+        })
+        setOrder([{
+            img : '',
+            menuName : '', 
+            Price : 0,
+            qty : 0,
+            Total : 0
+        },])
+        setTable('')
+        setModalCartVisible(false)
+        Alert.alert('Check Out Successfully')
+    }
 
     useEffect(()=>{
         let hasil = {...order.map(e=>e.Total)}
@@ -60,23 +97,12 @@ function Menu() {
             setTotal(tot)
         console.log(tot)
     },[modalCartVisible])
-    const foodArr = [{
-        img : 1,
-        foodName : 'nasi Goreng',
-        price : 15001
-    },{
-        img : 2,
-        foodName : 'nasi Goreng Kambing',
-        price : 15002
-    },{
-        img : 3,
-        foodName : 'nasi Goreng Udang',
-        price : 15003
-    },{
-        img : 4,
-        foodName : 'nasi Goreng Pedas',
-        price : 15004
-    },]
+    useEffect(()=>{
+        menuApi.foodMenu().then(data=>{
+            setFoodArr(data)
+        })
+    },[])
+
 
     const drinkArr = [{
         img : 1,
@@ -96,9 +122,9 @@ function Menu() {
         price : 15004
     },]
 
+
   return (
    <View style={styles.container}>
-
     <Modal
     visible={modalCartVisible}
     transparent={true}
@@ -110,31 +136,26 @@ function Menu() {
                     Cart
                 </Text>
             </View>
-           
-
-
             <FlatList
                         data = {order}
                         renderItem={({item})=>(    
                         <ScrollView>               
-                                <View style={{margin:5, padding:5, backgroundColor:'grey', flexDirection:'row'}}>                                  
-                                    <View style={{flexDirection:'column', flex:1, backgroundColor:'red',marginRight : 10}}>
-                                        <Text style={{marginRight : 10}}>
-                                            {item.img}
-                                        </Text>
+                                <View style={{margin:5, padding:5, elevation : 1, flexDirection:'row'}}>                                  
+                                    <View style={{flexDirection:'column', flex:1,marginRight : 10}}>
+                                        <Image source={require(`./img/1.jpg`)} style={{height:'55%', width:'100%', marginRight : 10, resizeMode:'cover'}}/>
                                         <Text style={{}}>     
                                             {item.menuName} 
                                         </Text>
                                     </View>
-                                    <View style={{flex:1, flexDirection:'column', backgroundColor:'red',marginRight : 10}}>
+                                    <View style={{flex:1, flexDirection:'column',marginRight : 10}}>
                                         <Text>Harga</Text>
                                         <Text style={{}}>
                                             Rp. {item.Price} 
                                         </Text>
                                     </View>
-                                    <View style={{flex:1, backgroundColor:'red',marginRight : 10}}>
+                                    <View style={{flex:1,marginRight : 10}}>
                                         <TextInput
-                                        style={{height: 40}}
+                                        style={{height: 40, borderWidth: 1}}
                                         onChangeText={(e)=>item.qty=e}
                                         keyboardType='number-pad' 
                                         defaultValue={item.qty.toString()}
@@ -146,16 +167,15 @@ function Menu() {
                                 </View>       
                         </ScrollView>                          
                       )}/>
-
             <TextInput
-                style={{height: 40}}
+                style={{height: 40, borderWidth: 1}}
                 onChangeText={(e)=>setTable(e)}
                 keyboardType='number-pad'
                 placeholder="Table Number " 
                 defaultValue={table}
                 />
             <Text>Total Rp. {total}</Text>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={()=>checkOut()}>
             <Text style={{backgroundColor:'green',color:'white',padding:10,width:'20%',borderRadius:5}}>OK</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={()=>setModalCartVisible(false)}>
@@ -184,7 +204,7 @@ function Menu() {
                 <Text style={{color:'white',padding:5,backgroundColor:'blue',width:25}}>-</Text>
             </TouchableOpacity>
                 <TextInput
-                    style={{height: 40}}
+                    style={{height: 40, borderWidth: 1}}
                     onChangeText={newText => setQty(newText)}
                     keyboardType='number-pad'
                     defaultValue={qty.toString()}

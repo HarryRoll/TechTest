@@ -32,7 +32,9 @@ function Menu() {
         qty : 0,
         Total : 0
     },])
+    const [refresh,setRefresh] = useState(true)
 
+//function untuk input ke dalam keranjang dari opsi menu yang di pilih
     const inputCart = (value) => {
         if(value.qty===0){Alert.alert("cant zero order")}
         else
@@ -51,6 +53,7 @@ function Menu() {
         console.log(order)
     }
     
+// function untuk menampilkan modal order dan menampilkan menu yang di pilih
     const onPress = (MenuProps) => {
         setModalOrderVisible(true);
         setPropsMenu(MenuProps)
@@ -62,20 +65,24 @@ function Menu() {
         setQty(0)
     }
     
+//function untuk menambah qty dari menu yang di pilih dengan menggunakan button + dan -    
     const onMin = () => {
         if(qty==0){Alert.alert('cannot be less than 0..!! please input the relevant amount')}
         else{
         setQty(Number(qty)-1)}
     }
 
+//function untuk menapilkan modal cart    
     const cart = () => {
         setModalCartVisible(true)
- //       order.map(e => console.log(e.Price))
+        console.log(order)
     }
+
+//function untuk melakukan checkout pesanan yang akan di hubungkan dengan api     
     const checkOut = async () => {
         payload = {
-            orderReport : order,
-            tableNumber : table,
+            orderreport : order,
+            tablenumber : table,
             total : total
         }
         await menuApi.createReportApi(payload).then(()=>{
@@ -92,6 +99,23 @@ function Menu() {
     })
     }
 
+//function untuk mengsetup ulang orderan yang akan di batalkan
+    const reset = (i) => {
+        order[i].img = ''
+        order[i].menuName = '' 
+        order[i].Price = 0
+        order[i].qty = 0
+        order[i].Total= 0
+        setRefresh(!refresh)
+    }
+//function untuk menggnti qty pesanan yang ada di cart
+    const changeQty = (e) => {
+        order[e.index].qty = e.text
+        order[e.index].Total = e.text * order[e.index].Price
+        setRefresh(!refresh)
+    }
+
+//useEffect untuk manampilakan total bayar dari seluruh pesanan    
     useEffect(()=>{
         let hasil = {...order.map(e=>e.Total)}
         let tot = 0
@@ -100,7 +124,9 @@ function Menu() {
             }
             setTotal(tot)
         console.log(tot)
-    },[modalCartVisible])
+    },[modalCartVisible,refresh])
+
+//useEffect untuk menampilkan daftar menu yang tersimpan pada database    
     useEffect(()=>{
         menuApi.foodMenu().then(data=>{
             setFoodArr(data)
@@ -125,8 +151,13 @@ function Menu() {
             </View>
             <FlatList
                         data = {order}
-                        renderItem={({item})=>(    
-                        <ScrollView>               
+                        renderItem={({item, index})=>(    
+                        <ScrollView>
+                            {item.img==='' ?   
+                            <View>
+
+                            </View>
+                            :            
                                 <View style={{margin:5, padding:5, elevation : 1, flexDirection:'row'}}>                                  
                                     <View style={{flexDirection:'column', flex:1,marginRight : 10}}>
                                         <Image source={require(`./img/1.jpg`)} style={{height:'55%', width:'100%', marginRight : 10, resizeMode:'cover'}}/>
@@ -137,21 +168,28 @@ function Menu() {
                                     <View style={{flex:1, flexDirection:'column',marginRight : 10}}>
                                         <Text>Harga</Text>
                                         <Text style={{}}>
-                                            Rp. {item.Price} 
+                                            Rp. {item.Price}
                                         </Text>
                                     </View>
                                     <View style={{flex:1,marginRight : 10}}>
                                         <TextInput
                                         style={{height: 40, borderWidth: 1}}
-                                        onChangeText={(e)=>item.qty=e}
+                                        // onChangeText={(e)=>item.qty=e}
+                                        onChangeText={(e)=>changeQty(
+                                            {text : e, index : index}
+                                        )}
                                         keyboardType='number-pad' 
                                         defaultValue={item.qty.toString()}
                                         />
                                         <Text style={{}}>
-                                            Rp. {item.Price*item.qty}    
+                                            Rp. {item.Total}    
                                         </Text>
+                                            <TouchableOpacity onPress={()=>reset(index)}>
+                                                <Text style={{backgroundColor:'red',color:'white',padding:10,borderRadius:5}}>delete</Text>
+                                            </TouchableOpacity>
                                     </View>    
-                                </View>       
+                                </View>
+                        }       
                         </ScrollView>                          
                       )}/>
             <TextInput
@@ -188,35 +226,34 @@ function Menu() {
                 <Text>RP.{propsMenu.choosePR}</Text>
             <View style={{flexDirection:'row'}}>
             <TouchableOpacity onPress={()=>onMin()}>
-                <Text style={{color:'white',padding:5,backgroundColor:'blue',width:25}}>-</Text>
+                <Text style={{color:'white',padding:5,backgroundColor:'blue', height: 30, width:30, marginRight:5, justifyContent:"center", textAlign:"center", borderRadius:5}}>-</Text>
             </TouchableOpacity>
                 <TextInput
-                    style={{height: 40, borderWidth: 1}}
+                    style={{height: 30, width:30, borderWidth: 1, textAlign:"center", borderRadius:5}}
                     onChangeText={newText => setQty(newText)}
                     keyboardType='number-pad'
                     defaultValue={qty.toString()}
                 />
             <TouchableOpacity onPress={()=>setQty(Number(qty)+1)}>
-                <Text style={{color:'white',padding:5,backgroundColor:'blue',width:25}}>+</Text>
+                <Text style={{color:'white',padding:5,backgroundColor:'blue', height: 30, width:30, marginLeft:5, justifyContent:"center", textAlign:"center", borderRadius:5}}>+</Text>
             </TouchableOpacity>    
             </View>
 
             <Text>
                 Rp. {qty*propsMenu.choosePR}
             </Text>
-
-            <TouchableOpacity onPress={()=>inputCart({
-                img : propsMenu.chooseIMG, 
-                menuName : propsMenu.chooseNM,
-                Price : propsMenu.choosePR,
-                qty : qty,
-                Total : qty*propsMenu.choosePR
-                })}>
-                <Text style={{backgroundColor:'green',color:'white',padding:10,width:'20%',borderRadius:5}}>OK</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={()=>onModalCancel()}>
-                <Text style={{backgroundColor:'red',color:'white',padding:10,width:'20%',borderRadius:5}}>Cancel</Text>
-            </TouchableOpacity>
+                <TouchableOpacity onPress={()=>inputCart({
+                    img : propsMenu.chooseIMG, 
+                    menuName : propsMenu.chooseNM,
+                    Price : propsMenu.choosePR,
+                    qty : qty,
+                    Total : qty*propsMenu.choosePR
+                    })}>
+                    <Text style={{backgroundColor:'green',color:'white',padding:10,width:'20%',borderRadius:5}}>OK</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={()=>onModalCancel()}>
+                    <Text style={{backgroundColor:'red',color:'white',padding:10,width:'20%',borderRadius:5}}>Cancel</Text>
+                </TouchableOpacity>
         </View>
     </View>
     </Modal>   
@@ -233,7 +270,7 @@ function Menu() {
                     <ScrollView horizontal={true}>
                         <TouchableOpacity onPress={()=>onPress({
                                         chooseIMG:item.img,
-                                        chooseNM : item.foodName,
+                                        chooseNM : item.foodname,
                                         choosePR : item.price
                                         })}>
                                 <View style={styles.menu}>
@@ -262,7 +299,7 @@ function Menu() {
                         <ScrollView horizontal={true}>
                             <TouchableOpacity onPress={()=>onPress({
                                         chooseIMG:item.img,
-                                        chooseNM : item.drinkName,
+                                        chooseNM : item.drinkname,
                                         choosePR : item.price
                                         })}>                   
                                 <View style={styles.menu}>

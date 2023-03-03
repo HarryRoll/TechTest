@@ -1,7 +1,7 @@
 import axios from "axios"
 
 const foodMenu = async() => {
-    const URL = 'http://192.168.0.14:8080/foodMenu'
+    const URL = 'http://192.168.0.15:8080/foodMenu'
     try {
         const result = await axios.get(URL)
             return result.data
@@ -11,7 +11,7 @@ const foodMenu = async() => {
 }
 
 const drinkMenu = async() => {
-    const URL = 'http://192.168.0.14:8080/drinkMenu'
+    const URL = 'http://192.168.0.15:8080/drinkMenu'
     try {
         const result = await axios.get(URL)
             return result.data
@@ -22,7 +22,7 @@ const drinkMenu = async() => {
 
 const createReportApi = async(payload)=>{
     try{
-        const URL = 'http://192.168.0.14:8080/report'
+        const URL = 'http://192.168.0.15:8080/report'
         const result = await axios.post(URL,payload)
         return result
     }

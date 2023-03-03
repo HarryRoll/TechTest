@@ -160,7 +160,8 @@ function Menu() {
                             :            
                                 <View style={{margin:5, padding:5, elevation : 1, flexDirection:'row'}}>                                  
                                     <View style={{flexDirection:'column', flex:1,marginRight : 10}}>
-                                        <Image source={require(`./img/1.jpg`)} style={{height:'55%', width:'100%', marginRight : 10, resizeMode:'cover'}}/>
+                                        <Image source={{uri: `http://192.168.0.15:8080/file/${item.img}`}} style={{height:'55%', width:'100%', marginRight : 10, resizeMode:'cover'}}/>
+                                        {/* <Image source={require(`./img/1.jpg`)} style={{height:'55%', width:'100%', marginRight : 10, resizeMode:'cover'}}/> */}
                                         <Text style={{}}>     
                                             {item.menuName} 
                                         </Text>
@@ -274,12 +275,12 @@ function Menu() {
                                         choosePR : item.price
                                         })}>
                                 <View style={styles.menu}>
-                                <Image source={require('./img/2.jpg')} style={{height:'55%', width:'100%', resizeMode:'cover'}}/>
+                                <Image source={{uri: `http://192.168.0.15:8080/file/${item.img}`}} style={{height:'55%', width:'100%', resizeMode:'cover'}}/>
                                     <Text>
                                         {item.foodname}   
                                     </Text>
                                     <Text>
-                                        Rp. {item.price}   
+                                        Rp. {item.price}
                                     </Text>
                                 </View>              
                         </TouchableOpacity> 
@@ -303,7 +304,7 @@ function Menu() {
                                         choosePR : item.price
                                         })}>                   
                                 <View style={styles.menu}>
-                                    <Image source={require(`./img/1.jpg`)} style={{height:'55%', width:'100%', resizeMode:'cover'}}/>                                    
+                                    <Image source={{uri: `http://192.168.0.15:8080/file/${item.img}`}} style={{height:'55%', width:'100%', resizeMode:'cover'}}/>                                    
                                     <Text>
                                         {item.drinkname}    
                                     </Text>
